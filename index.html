@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>You are special!</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(180deg, #2a0a1a, #1a0410);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* dotted starfield background */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px);
+    background-size: 22px 22px;
+    z-index: 0;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 420px;
+    height: 100vh;
+    max-height: 900px;
+    background: radial-gradient(ellipse at bottom, #5c1236 0%, #2a0a1a 70%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 24px;
+    z-index: 1;
+  }
+
+  .screen {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 24px;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .screen.active {
+    display: flex;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---- Screen 1: intro ---- */
+  .avatar-circle {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 30%, #4a1030, #2a0a1a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+    box-shadow: 0 0 40px rgba(255, 60, 130, 0.3);
+    animation: floaty 3s ease-in-out infinite;
+  }
+
+  @keyframes floaty {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .avatar-circle .face {
+    font-size: 70px;
+  }
+
+  h1.title {
+    font-family: 'Brush Script MT', cursive;
+    font-size: 3rem;
+    background: linear-gradient(90deg, #ff5f8f, #ff2d78);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 10px;
+  }
+
+  .subtext {
+    color: #cfcfd8;
+    font-size: 1.1rem;
+    margin-bottom: 40px;
+  }
+
+  .btn-pink {
+    background: linear-gradient(90deg, #ff2d78, #ff5f8f);
+    color: white;
+    border: none;
+    padding: 16px 36px;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(255, 45, 120, 0.4);
+    transition: transform 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .btn-pink:active { transform: scale(0.96); }
+
+  /* ---- Screen 2: loading ---- */
+  .loading-box {
+    background: rgba(255, 45, 120, 0.05);
+    border: 1px solid rgba(255, 90, 150, 0.4);
+    border-radius: 20px;
+    padding: 40px 30px;
+    width: 100%;
+    box-shadow: 0 0 30px rgba(255, 45, 120, 0.15);
+  }
+
+  .loading-title {
+    color: #e0e0e8;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+  }
+
+  .percent {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #ff4a8d;
+    margin-bottom: 20px;
+  }
+
+  .progress-track {
+    width: 100%;
+    height: 14px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #ff9fc0, #ff2d78);
+    border-radius: 10px;
+    transition: width 0.05s linear;
+  }
+
+  .loading-sub {
+    color: #ff6fa0;
+    font-size: 0.95rem;
+  }
+
+  /* ---- Screen 3: reveal cards ---- */
+  .heart-badge {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,45,120,0.25), transparent 70%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+  }
+
+  h2.script-title {
+    font-family: 'Brush Script MT', cursive;
+    font-size: 2.2rem;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .hint {
+    color: #999aa8;
+    font-size: 0.95rem;
+    margin-bottom: 24px;
+  }
+
+  .reveal-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .reveal-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 16px;
+    color: transparent;
+    text-shadow: 0 0 8px rgba(255,255,255,0.5);
+    font-size: 1rem;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.35s ease;
+    position: relative;
+  }
+
+  .reveal-card::before {
+    content: "❤ tap to reveal";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ff6fa0;
+    font-size: 0.85rem;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
+
+  .reveal-card.revealed {
+    color: #fff;
+    text-shadow: none;
+    background: rgba(255,45,120,0.12);
+    border-color: rgba(255,90,150,0.4);
+  }
+
+  .reveal-card.revealed::before {
+    opacity: 0;
+  }
+
+  .see-more-btn {
+    display: none;
+  }
+
+  .see-more-btn.show {
+    display: flex;
+  }
+
+  /* ---- Screen 4: envelope ---- */
+  h2.note-title {
+    font-family: 'Brush Script MT', cursive;
+    font-size: 2.3rem;
+    color: #fff;
+    margin-bottom: 30px;
+  }
+
+  .envelope {
+    width: 100%;
+    background: linear-gradient(180deg, #ff6fa0, #ffd3e2);
+    border-radius: 18px;
+    padding: 0;
+    cursor: pointer;
+    box-shadow: 0 10px 40px rgba(255, 60, 130, 0.35);
+    overflow: hidden;
+    transition: transform 0.2s ease;
+  }
+
+  .envelope:active { transform: scale(0.97); }
+
+  .envelope-top {
+    background: linear-gradient(90deg, #ff4a8d, #ff2d78);
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.3rem;
+  }
+
+  .envelope-body {
+    padding: 50px 20px 34px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .ribbon-heart {
+    font-size: 4rem;
+    margin-bottom: 20px;
+  }
+
+  .tap-to-open {
+    color: #c2185b;
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+
+  /* ---- Screen 5: note content ---- */
+  .note-card {
+    background: linear-gradient(180deg, #ffd3e2, #ff9fc0);
+    border-radius: 22px;
+    padding: 36px 26px;
+    width: 100%;
+    color: #3a1020;
+  }
+
+  .note-card .small-heart {
+    font-size: 2rem;
+    margin-bottom: 20px;
+  }
+
+  .note-text {
+    font-size: 1rem;
+    line-height: 1.7;
+    text-align: left;
+    margin-bottom: 26px;
+  }
+
+  .btn-white-pink {
+    background: linear-gradient(90deg, #ff2d78, #ff5f8f);
+    color: white;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* ---- Screen 6: final ---- */
+  .final-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 30%, #4a1030, #2a0a1a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+    margin-bottom: 30px;
+    box-shadow: 0 0 40px rgba(255, 60, 130, 0.3);
+    animation: floaty 3s ease-in-out infinite;
+  }
+
+  h2.final-title {
+    font-family: 'Brush Script MT', cursive;
+    font-size: 2rem;
+    color: #fff;
+    line-height: 1.4;
+  }
+
+  .replay-btn {
+    margin-top: 30px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #ddd;
+    padding: 10px 24px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+
+  .floating-hearts {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 5;
+  }
+
+  .fh {
+    position: absolute;
+    bottom: -30px;
+    font-size: 20px;
+    animation: floatUp 3.5s ease-in forwards;
+    opacity: 0.9;
+  }
+
+  @keyframes floatUp {
+    0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(-700px) translateX(var(--drift, 20px)) rotate(20deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="floating-hearts" id="floatingHearts"></div>
+
+<div class="app">
+
+  <!-- Screen 1 -->
+  <div class="screen active" id="screen1">
+    <div class="avatar-circle"><span class="face">🧸</span></div>
+    <h1 class="title">Hey Handsome Sameer</h1>
+    <p class="subtext">Do you even know how cute you are?</p>
+    <button class="btn-pink" onclick="goTo(2); startLoading();">Open My Heart ❤</button>
+  </div>
+
+  <!-- Screen 2 -->
+  <div class="screen" id="screen2">
+    <div class="loading-box">
+      <div class="loading-title">Measuring your cuteness...</div>
+      <div class="percent" id="percentText">0%</div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="loading-sub">Calculating cuteness...</div>
+    </div>
+  </div>
+
+  <!-- Screen 3 -->
+  <div class="screen" id="screen3">
+    <div class="heart-badge">❤</div>
+    <h2 class="script-title">Just for you</h2>
+    <p class="hint">Tap each one to reveal</p>
+    <div class="reveal-list" id="revealList">
+      <div class="reveal-card" data-text="You look adorable">You look adorable</div>
+      <div class="reveal-card" data-text="You have the sweetest vibe">You have the sweetest vibe</div>
+      <div class="reveal-card" data-text="You make things feel lighter">You make things feel lighter</div>
+      <div class="reveal-card" data-text="You are naturally charming">You are naturally charming</div>
+      <div class="reveal-card" data-text="You make everything feel more special">You make everything feel more special</div>
+    </div>
+    <button class="btn-pink see-more-btn" id="seeMoreBtn" onclick="goTo(4)">See more →</button>
+  </div>
+
+  <!-- Screen 4 -->
+  <div class="screen" id="screen4">
+    <h2 class="note-title">A little note for you</h2>
+    <div class="envelope" onclick="goTo(5)">
+      <div class="envelope-top"><span>❤</span><span>❤</span></div>
+      <div class="envelope-body">
+        <div class="ribbon-heart">🎀</div>
+        <div class="tap-to-open">Tap to open</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 5 -->
+  <div class="screen" id="screen5">
+    <h2 class="note-title">A little note for you</h2>
+    <div class="note-card">
+      <div class="small-heart">❤</div>
+      <p class="note-text">
+        I just wanted to tell you something... you really are special in a way that's hard to explain.<br><br>
+        There's a warmth in the way you talk, a kindness in the way you treat people, and something genuine about you that just feels good to be around.<br><br>
+        You don't try to be anything extra, you're just you, and that's what makes you so lovely.
+      </p>
+      <button class="btn-white-pink" onclick="goTo(6)">One more thing →</button>
+    </div>
+  </div>
+
+  <!-- Screen 6 -->
+  <div class="screen" id="screen6">
+    <div class="final-avatar">🧸</div>
+    <h2 class="final-title">You'll always be<br>special to me</h2>
+    <button class="replay-btn" onclick="restart()">↺ Watch again</button>
+  </div>
+
+</div>
+
+<script>
+let current = 1;
+
+function goTo(n) {
+  document.getElementById('screen' + current).classList.remove('active');
+  document.getElementById('screen' + n).classList.add('active');
+  current = n;
+  burstHearts(6);
+}
+
+function restart() {
+  document.getElementById('screen' + current).classList.remove('active');
+  document.getElementById('screen1').classList.add('active');
+  current = 1;
+  // reset reveal cards
+  document.querySelectorAll('.reveal-card').forEach(c => c.classList.remove('revealed'));
+  document.getElementById('seeMoreBtn').classList.remove('show');
+  document.getElementById('progressFill').style.width = '0%';
+  document.getElementById('percentText').textContent = '0%';
+}
+
+function startLoading() {
+  let pct = 0;
+  const fill = document.getElementById('progressFill');
+  const text = document.getElementById('percentText');
+  const interval = setInterval(() => {
+    pct += Math.random() * 12 + 6;
+    if (pct >= 120) {
+      pct = 120;
+      clearInterval(interval);
+      setTimeout(() => goTo(3), 600);
+    }
+    fill.style.width = Math.min(pct, 100) + '%';
+    text.textContent = Math.floor(pct) + '%';
+  }, 180);
+}
+
+// reveal cards logic
+document.querySelectorAll('.reveal-card').forEach(card => {
+  card.addEventListener('click', () => {
+    card.classList.add('revealed');
+    burstHearts(3);
+    const allRevealed = [...document.querySelectorAll('.reveal-card')]
+      .every(c => c.classList.contains('revealed'));
+    if (allRevealed) {
+      document.getElementById('seeMoreBtn').classList.add('show');
+    }
+  });
+});
+
+// floating hearts effect
+function burstHearts(count) {
+  const container = document.getElementById('floatingHearts');
+  const emojis = ['❤', '💖', '💗', '💕'];
+  for (let i = 0; i < count; i++) {
+    const h = document.createElement('div');
+    h.className = 'fh';
+    h.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    h.style.left = (40 + Math.random() * 20) + '%';
+    h.style.setProperty('--drift', (Math.random() * 100 - 50) + 'px');
+    h.style.animationDelay = (Math.random() * 0.3) + 's';
+    container.appendChild(h);
+    setTimeout(() => h.remove(), 4000);
+  }
+}
+</script>
+
+</body>
+</html>
